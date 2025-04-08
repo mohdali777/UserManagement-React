@@ -13,12 +13,50 @@ const Login = () => {
   const Navigate = useNavigate()
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Signup attempted with:', { fullName, email, password});
-    SetLoading(true)
-    setTimeout(()=>{
-        SetLoading(false)
-        Navigate('/')
-    },2000)
+     if(LoginType == "Sign Up"){     
+      const PayLoad = {
+        name:fullName,
+        email:email,
+        password:password
+      }
+      fetch('http://localhost:3000/addUser/Signup',{method:'POST',headers:{"Content-Type":"application/json"},body:JSON.stringify(PayLoad)}).then((res)=>{
+         return res.json()
+      }).then((data)=>{
+        if(data.success){
+          SetLoading(true)
+          setTimeout(()=>{
+              SetLoading(false)
+              Navigate('/')
+          },2000)
+        }else{
+          alert(data.message)
+        }
+      }).catch((err)=>{
+        console.log(err)
+      })
+     }else{      
+      const PayLoad = {
+        email:email,
+        password:password
+      }
+      fetch('http://localhost:3000/addUser/Login',{method:'POST',headers:{"Content-Type":"application/json"},body:JSON.stringify(PayLoad)}).then((res)=>{
+          return res.json()
+      }).then((data)=>{
+        if(data.success){
+          SetLoading(true)
+          setTimeout(()=>{
+              SetLoading(false)
+              Navigate('/')
+          },2000)
+        }else{
+          alert(data.message)
+        }
+      }).catch((err)=>{
+        console.log(err)
+      })
+
+     }
+   
   };
 
   function SetClick(){

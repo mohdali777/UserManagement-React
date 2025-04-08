@@ -4,14 +4,10 @@ import { faEdit, faTrash, faEye, faUserPlus } from '@fortawesome/free-solid-svg-
 import Navbar from '../../components/Navbar/navbar';
 import { AppContext } from '../../context';
 
-const usersData = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User' },
-  { id: 3, name: 'Michael Brown', email: 'michael@example.com', role: 'Moderator' }
-];
+
 
 export default function UserManagement() {
-  const [users, setUsers] = useState(usersData);
+  const [users, setUsers] = useState([]);
 
   const handleDelete = (id) => {
     setUsers(users.filter(user => user.id !== id));
@@ -21,7 +17,12 @@ export default function UserManagement() {
 
   useEffect(()=>{
 setAdmin(false)
-  })
+fetch('http://localhost:3000/admin/getUser',{method:"GET"}).then((res)=>{
+  return res.json()
+}).then((data)=>{
+setUsers(data.Users)
+})
+  },[])
 
   return (
     <>
@@ -39,7 +40,7 @@ setAdmin(false)
             <tr className='bg-gray-200'>
               <th className='p-3 border'>Name</th>
               <th className='p-3 border'>Email</th>
-              <th className='p-3 border'>Role</th>
+              <th className='p-3 border'>Status</th>
               <th className='p-3 border'>Actions</th>
             </tr>
           </thead>
@@ -48,7 +49,7 @@ setAdmin(false)
               <tr key={user.id} className='text-center hover:bg-gray-100'>
                 <td className='p-3 border'>{user.name}</td>
                 <td className='p-3 border'>{user.email}</td>
-                <td className='p-3 border'>{user.role}</td>
+                <td className='p-3 border'>{user.status}</td>
                 <td className='p-3 border flex justify-center gap-3'>
                   <button className='text-blue-500 hover:text-blue-700'><FontAwesomeIcon icon={faEye} /></button>
                   <button className='text-green-500 hover:text-green-700'><FontAwesomeIcon icon={faEdit} /></button>
