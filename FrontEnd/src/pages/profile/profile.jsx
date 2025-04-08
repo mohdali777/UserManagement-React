@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt, faUser, faCog, faEdit, faCamera } from '@fortawesome/free-solid-svg-icons';
 import { AppContext } from '../../context';
 import Loading from '../../components/Loading/loading';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../redux/Slices/AuthSlice';
 
 export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
@@ -13,6 +15,7 @@ export default function Profile() {
   const [profileImage, setProfileImage] = useState('https://via.placeholder.com/15');
   const {LoadingState,SetLoading} = useContext(AppContext)
 
+  const dispatch = useDispatch()
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -36,7 +39,7 @@ export default function Profile() {
         <Loading/>
         </div>}
       <Navbar />
-      <div className='w-full flex items-center justify-center mt-20 px-5 md:px-30' >
+      <div className='w-full flex items-center justify-center mt-6 md:mt-20 px-5 md:px-30' >
       <div className="bg-gray-100 w-full md:h-[500px] rounded-[5px] shadow-lg flex flex-col md:flex-row ">
           <div className='border-r-1 border-gray-300 md:w-[30%] bg-white p-6 flex flex-col items-center'>
             <h2 className='text-xl font-semibold mb-6'>Menu</h2>
@@ -48,10 +51,11 @@ export default function Profile() {
                 <FontAwesomeIcon icon={faCog} className='text-green-500' /> Settings
               </li>
               <li className='py-3 px-4 w-full text-center hover:bg-red-500 hover:text-white rounded cursor-pointer flex items-center gap-3 mt-8'>
-                <FontAwesomeIcon icon={faSignOutAlt} className='text-red-500' /> Logout
+                <FontAwesomeIcon onClick={()=> dispatch(logout())} icon={faSignOutAlt} className='text-red-500' /> Logout
               </li>
             </ul>
-          </div>
+          </div>/
+          '.lkm';,l[pl]
           
           <div className=' md:w-[70%] bg-gray-50 p-8'>
             <div className='flex justify-between items-center'>

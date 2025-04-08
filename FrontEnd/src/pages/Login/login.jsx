@@ -2,6 +2,8 @@ import React, { useContext, useState } from 'react';
 import Loading from '../../components/Loading/loading';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context';
+import { useDispatch, useSelector } from 'react-redux';
+import { SignupUser,loginUser } from '../../redux/Slices/AuthSlice';
 const Login = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -10,51 +12,22 @@ const Login = () => {
   const [LoginType,SetType] = useState("Sign in")
   const {LoadingState,SetLoading} = useContext(AppContext)
 
+  const dispatch = useDispatch()
+  const { loading, error } = useSelector((state) => state.auth);
+
   const Navigate = useNavigate()
   const handleSubmit = (e) => {
     e.preventDefault();
      if(LoginType == "Sign Up"){     
-      const PayLoad = {
-        name:fullName,
-        email:email,
-        password:password
-      }
-      fetch('http://localhost:3000/addUser/Signup',{method:'POST',headers:{"Content-Type":"application/json"},body:JSON.stringify(PayLoad)}).then((res)=>{
-         return res.json()
-      }).then((data)=>{
-        if(data.success){
-          SetLoading(true)
-          setTimeout(()=>{
-              SetLoading(false)
-              Navigate('/')
-          },2000)
-        }else{
-          alert(data.message)
-        }
-      }).catch((err)=>{
-        console.log(err)
-      })
-     }else{      
-      const PayLoad = {
-        email:email,
-        password:password
-      }
-      fetch('http://localhost:3000/addUser/Login',{method:'POST',headers:{"Content-Type":"application/json"},body:JSON.stringify(PayLoad)}).then((res)=>{
-          return res.json()
-      }).then((data)=>{
-        if(data.success){
-          SetLoading(true)
-          setTimeout(()=>{
-              SetLoading(false)
-              Navigate('/')
-          },2000)
-        }else{
-          alert(data.message)
-        }
-      }).catch((err)=>{
-        console.log(err)
-      })
-
+        dispatch(SignupUser({fullName,email,password}))
+        .unwrap()
+        .then(() => Navigate('/'))
+        .catch(alert);
+     }else{         
+        dispatch(loginUser({email,password}))
+        .unwrap()
+        .then(() => Navigate('/'))
+        .catch(alert);
      }
    
   };
@@ -71,7 +44,7 @@ SetLoading(false)
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center relative">
 
-        {LoadingState &&<div className='absolute'>
+        {loading &&<div className='absolute'>
         <Loading/>
         </div> }
         <div className="mx-auto w-full  max-w-md">

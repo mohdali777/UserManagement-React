@@ -1,5 +1,8 @@
 const {User} = require('../Model/user/usermodel')
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
+require('dotenv').config()
+const JWT_SECRET = process.env.JWT_SECRET
 
 const SignIn = async(req,res)=>{
 try {
@@ -15,7 +18,18 @@ try {
         message: 'Invalid credentials',
       });
     }
-    return res.status(200).json({success:true,message:"Login Success"})
+     
+    const Token = jwt.sign({userId:IsEmail._id,email:IsEmail.email},JWT_SECRET,{
+      expiresIn:'1d'
+    })
+    
+    return res.status(200).json({
+    success:true,
+    message:"Login Success",
+    Token,
+    user:{userId:IsEmail._id,email:IsEmail.email}
+  })
+
 } catch (error) {
     console.error('SignIn error:', error);
     return res.status(500).json({
@@ -48,8 +62,12 @@ try {
        password:HashPassword
     })
     await newUser.save()
-
-    return res.status(201).json({success:true,message:"User Created Successfully"})
+    
+    const Token = jwt.sign({ userId: newUser._id, email: newUser.email }, JWT_SECRET, {
+      expiresIn: '1d',
+    });
+     
+    return res.status(201).json({success:true,message:"User Created Successfully",Token,user:{userId:newUser._id,email:newUser.email}})
 } catch (error) {
     console.error("Signup error:", error);
     return res.status(500).json({
