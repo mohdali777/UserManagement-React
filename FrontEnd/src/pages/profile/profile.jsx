@@ -9,28 +9,96 @@ import { logout } from '../../redux/Slices/AuthSlice';
 
 export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState('John Doe');
-  const [email, setEmail] = useState('johndoe@example.com');
-  const [bio, setBio] = useState('Passionate developer with experience in MERN stack and cloud technologies.');
-  const [profileImage, setProfileImage] = useState('https://via.placeholder.com/15');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [bio, setBio] = useState('Add Bio');
+  const [profileImage, setProfileImage] = useState('');
   const {LoadingState,SetLoading} = useContext(AppContext)
 
+
   const dispatch = useDispatch()
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setProfileImage(imageUrl);
-    }
+
+  const handleImageChange = async (e) => {
+     const file = e.target.files[0];
+  if (!file) return;
+  const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+  if (!validTypes.includes(file.type)) {
+    alert('Invalid file type. Please upload a JPG, JPEG, PNG, or WEBP image.');
+    return;
+  }
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', 'User-Profiles');
+
+  try {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/dy5xp5ai5/image/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+    console.log('Image URL:', data.secure_url);
+    setProfileImage(data.secure_url);
+
+  } catch (err) {
+    console.error('Upload Error:', err);
+    alert('Image upload failed');
+  }
   };
 
-  function ButtonClick(){
-    SetLoading(true)
-    setTimeout(()=>{
-        SetLoading(false)
-        setIsEditing(false)
-    },2000)
+  useEffect(()=>{
+    const token = localStorage.getItem('token')
+     fetch('http://localhost:3000/profile/GetuserData',{method:'GET',headers:{
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+     }}).then((response)=>{
+      return response.json()
+     }).then((data)=>{
+       if(data.success){
+       setName(data.user.name)
+       setEmail(data.user.email)
+       setBio(data.user.bio)
+       setProfileImage(data.user.Image)
+       }else{
+        alert(data.message)
+       }
+     })
+  },[])
+
+  function ButtonClick() {
+    const payload = {
+      name,
+      email,
+      bio,
+      profileImage
+    };
+    const token = localStorage.getItem('token');
+    fetch('http://localhost:3000/profile/Edit-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `${token}`, 
+      },
+      body: JSON.stringify(payload)
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          SetLoading(true)
+          setTimeout(()=>{
+           SetLoading(false)
+            setIsEditing(false)
+          },2000)
+        } else {
+          alert(`Error: ${data.message}`);
+        }
+      })
+      .catch((err) => {
+        console.error('Error:', err);
+        alert('Something went wrong!');
+      });
   }
+  
 
 
   return (
@@ -54,9 +122,8 @@ export default function Profile() {
                 <FontAwesomeIcon onClick={()=> dispatch(logout())} icon={faSignOutAlt} className='text-red-500' /> Logout
               </li>
             </ul>
-          </div>/
-          '.lkm';,l[pl]
-          
+          </div>
+
           <div className=' md:w-[70%] bg-gray-50 p-8'>
             <div className='flex justify-between items-center'>
               <h2 className='text-2xl font-semibold mb-6'>Profile Information</h2>

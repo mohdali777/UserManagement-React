@@ -9,6 +9,10 @@ const UserSchema = new mongoose.Schema({
     type:String,
     required:true
  },
+ bio:{
+  type:String,
+  default:"Add Your bio"
+ },
  status:{
     type:String,
     enum:['blocked','active','inactive'],
@@ -16,7 +20,8 @@ const UserSchema = new mongoose.Schema({
  },
  Image:{
     type:String,
-    required:false
+    required:false,
+    default:'https://www.kasandbox.org/programming-images/avatars/cs-hopper-happy.png'
  },
  password:{
     type:String,

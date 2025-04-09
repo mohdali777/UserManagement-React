@@ -4,5 +4,7 @@ const UserRoutes = require('../controllers/userControllers')
 
 router.post('/addUser/Login',UserRoutes.SignIn)
 router.post('/addUser/Signup',UserRoutes.Signup)
+router.get('/profile/GetuserData',UserRoutes.getData)
+router.post('/profile/Edit-data',UserRoutes.editprofile)
 
 module.exports = router

@@ -19,7 +19,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
      if(LoginType == "Sign Up"){     
-        dispatch(SignupUser({fullName,email,password}))
+        dispatch(SignupUser({name:fullName,email,password}))
         .unwrap()
         .then(() => Navigate('/'))
         .catch(alert);

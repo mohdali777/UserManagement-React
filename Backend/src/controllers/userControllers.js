@@ -76,7 +76,68 @@ try {
     });
 }
 }
+
+const getData = async (req,res) => {
+  try {
+    const Token = req.headers.authorization.split(' ')[1]
+    if (!Token) return res.status(401).json({success:false , message: 'Unauthorized' });
+    const decode = jwt.verify(Token,JWT_SECRET)
+    const user = await User.findById(decode.userId)
+    if (!user) return res.status(404).json({ success:false,message: 'User not found' });
+    res.json({ user ,success:true});    
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid Token' });
+  }
+}
+
+const editprofile = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { name, email, bio,profileImage } = req.body;
+    const token = req.headers.authorization;
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    const decode = jwt.verify(token,JWT_SECRET)
+    const user = await User.findById(decode.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    const isNameUsed = await User.findOne({ name });
+    if (isNameUsed && isNameUsed._id.toString() !== user._id.toString()) {
+      return res.status(400).json({ success: false, message: 'Username already taken' });
+    }
+    const isEmailUsed = await User.findOne({ email });
+    if (isEmailUsed && isEmailUsed._id.toString() !== user._id.toString()) {
+      return res.status(400).json({ success: false, message: 'Email already taken' });
+    }
+    user.name = name;
+    user.email = email;
+    user.bio = bio;
+    user.Image = profileImage
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Edited successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        bio: user.bio,
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+
 module.exports = {
     SignIn,
-    Signup
+    Signup,
+    getData,
+    editprofile
 }
