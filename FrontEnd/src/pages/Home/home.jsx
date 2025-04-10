@@ -1,15 +1,18 @@
-import React, { useContext } from 'react'
+import React, { useEffect } from 'react'
 import Navbar from '../../components/Navbar/navbar'
 import Loading from '../../components/Loading/loading'
-import { AppContext } from '../../context'
+import { useDispatch, useSelector } from 'react-redux'
+import { changeStateHome } from '../../redux/Slices/iconReducer'
 export default function Home() {
-    
-    const {LoadingState,SetLoading} = useContext(AppContext)
+    const dispatch = useDispatch()
+    const iconstate = useSelector((state)=> state.icon.iconState)
+    useEffect(()=>{
+     dispatch(changeStateHome())
+     console.log(iconstate);
+     console.log("Dispatched: changeStateHome");
+    },[])
   return (
     <div className='relative'>
-{LoadingState &&  <div className='absolute'> 
-        <Loading/>
-        </div>}
         <Navbar/>
     </div>
   )

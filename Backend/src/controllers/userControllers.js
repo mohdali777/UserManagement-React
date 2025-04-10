@@ -3,6 +3,13 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const JWT_SECRET = process.env.JWT_SECRET
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: 'dy5xp5ai5',
+  api_key: '769411556796447',
+  api_secret: '49JXIH5zvXqTdEh-fs4phDfTC8k',
+});
 
 const SignIn = async(req,res)=>{
 try {
@@ -27,11 +34,7 @@ try {
     success:true,
     message:"Login Success",
     Token,
-    user: {
-      _id: IsEmail._id,
-      name: IsEmail.name,
-      email: IsEmail.email,
-    },  
+    user:IsEmail  
   })
 
 } catch (error) {
@@ -46,7 +49,6 @@ try {
 
 const Signup = async(req,res)=>{
 try {
-    console.log(req.body);
     const {name,email,password} = req.body;
     const isName = await User.findOne({name})
     if(isName){
@@ -96,19 +98,25 @@ const getData = async (req,res) => {
 
 const editprofile = async (req, res) => {
   try {
-    console.log(req.body);
-    const { name, email, bio,profileImage } = req.body;
+    const { name, email, bio,profileImage,uploadimageId,imageId} = req.body;
     const token = req.headers.authorization;
     if (!token) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
+      return res.status(401).json({ success: false, message: 'Unauthorized',log:'Logout'});
     }
     const decode = jwt.verify(token,JWT_SECRET)
     const user = await User.findById(decode.userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.status(404).json({ success: false, message: 'User not found',log:'Logout' });
     }
-    user.Image = profileImage
-    await user.save();
+  
+    if(profileImage){
+      if(imageId){
+        await cloudinary.uploader.destroy(imageId);
+      }
+      user.Image = profileImage
+      user.ImageId = uploadimageId
+      await user.save();
+    }
 
     const isNameUsed = await User.findOne({ name });
     if (isNameUsed && isNameUsed._id.toString() !== user._id.toString()) {
@@ -138,12 +146,34 @@ const editprofile = async (req, res) => {
     console.error(error);
     return res.status(500).json({ success: false, message: 'Server Error' });
   }
+
 };
+
+const verifyUser = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ success: false, message: 'No token provided or wrong format' });
+    }
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.status(200).json({ user, token, success: true });
+  } catch (error) {
+    console.error("JWT Verification Error:", error.message);
+    return res.status(403).json({ success: false, message: 'Invalid or malformed token', error: error.message });
+  }
+};
+
 
 
 module.exports = {
     SignIn,
     Signup,
     getData,
-    editprofile
+    editprofile,
+    verifyUser
 }

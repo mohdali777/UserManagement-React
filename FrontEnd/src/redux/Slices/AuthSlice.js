@@ -46,10 +46,37 @@ export const SignupUser = createAsyncThunk(
   }
 );
 
+export const VerifyUser = createAsyncThunk(
+  'auth/VerifyUser',
+  async (_, thunkAPI) => {
+    try {
+      console.log('Call verify');
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3000/user/verifyUser', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      console.log(data);
+      if (data.success && data.user) {
+        return data;
+      } else {
+        return thunkAPI.rejectWithValue(data.message);
+      }
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
 const AuthSlice = createSlice({
   name: 'auth',
   initialState: {
-    user: null,
+    user: undefined,
     token: localStorage.getItem('token') || null,
     loading: false,
     error: null,
@@ -72,11 +99,9 @@ const AuthSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        console.log('LOGIN PAYLOAD:', action.payload); 
         state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.Token;
-        console.log(state.user);
       })
       .addCase(SignupUser.fulfilled, (state, action) => {
         state.loading = false;
@@ -90,7 +115,20 @@ const AuthSlice = createSlice({
       .addCase(SignupUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+      .addCase(VerifyUser.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(VerifyUser.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+      })
+      .addCase(VerifyUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.user = null;
+        state.token = null;
+        localStorage.removeItem('token');
+      })
   },
 });
 

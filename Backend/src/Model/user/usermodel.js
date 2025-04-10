@@ -27,6 +27,10 @@ default:false
     required:false,
     default:'https://www.kasandbox.org/programming-images/avatars/cs-hopper-happy.png'
  },
+ ImageId:{
+   type:String,
+   required:false,
+ },
  password:{
     type:String,
     required:true

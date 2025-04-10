@@ -12,7 +12,6 @@ const getUserData = async (req,res) => {
 
 const EditUsers = async (req,res) => {
     try {
-        console.log(req.body);
         const {userId,name,email,Role,password} = req.body
         const user = await User.findById(userId)
         console.log(user);
@@ -60,7 +59,6 @@ const DeleteUser = async (req,res) => {
 
 const serachQuery = async (req, res) => {
     try {
-        console.log(req.query);
       const { search } = req.query;  
       const users = await User.find({
         name: { $regex: search, $options: 'i' } 

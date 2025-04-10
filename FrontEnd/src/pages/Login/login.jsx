@@ -1,43 +1,66 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import Loading from '../../components/Loading/loading';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../../context';
 import { useDispatch, useSelector } from 'react-redux';
 import { SignupUser,loginUser } from '../../redux/Slices/AuthSlice';
+import { toast } from 'react-toastify';
 const Login = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [LoginType,SetType] = useState("Sign in")
-  const {LoadingState,SetLoading} = useContext(AppContext)
+
 
   const dispatch = useDispatch()
-  const { loading, error } = useSelector((state) => state.auth);
+  const { loading} = useSelector((state) => state.auth);
 
   const Navigate = useNavigate()
   const handleSubmit = (e) => {
     e.preventDefault();
-     if(LoginType == "Sign Up"){     
+     if(LoginType == "Sign Up"){  
+      if(!fullName){
+        return toast.error('User Feild Is Empty')
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!email || !emailRegex.test(email)) {
+            return toast.error('Please enter a valid email');
+          }
+         if(!password){
+          return toast.error('Password Feild Is empty')
+         } 
+         if(!confirmPassword){
+          return toast.error('Confirm Password Feild Is empty')
+         }
+      if(password !== confirmPassword){
+        return toast.error('Password Not Same')
+      }   
         dispatch(SignupUser({name:fullName,email,password}))
         .unwrap()
         .then(() => Navigate('/'))
-        .catch(alert);
-     }else{         
+        .catch((error) => {
+          toast.error(error );
+        });
+     }else{    
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        return toast.error('Please enter a valid email');
+      }
+     if(!password){
+      return toast.error('Password Feild Is empty')
+     }     
         dispatch(loginUser({email,password}))
         .unwrap()
         .then(() => Navigate('/'))
-        .catch(alert);
+        .catch((error) => {
+          toast.error(error );
+        });
      }
    
   };
 
   function SetClick(){
-    SetLoading(true)
-    setTimeout(()=>{
-SetType((prev)=> prev == "Sign Up" ? "Sign in" :"Sign Up")
-SetLoading(false)
-    },1000)
+  SetType((prev)=> prev == "Sign Up" ? "Sign in" :"Sign Up")
   }
 
 
@@ -58,7 +81,6 @@ SetLoading(false)
                 <input
                   id="fullName"
                   type="text"
-                  required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
@@ -73,7 +95,6 @@ SetLoading(false)
                 <input
                   id="email"
                   type="email"
-                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
@@ -88,7 +109,6 @@ SetLoading(false)
                 <input
                   id="password"
                   type="password"
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
@@ -104,7 +124,6 @@ SetLoading(false)
                 <input
                   id="confirmPassword"
                   type="password"
-                  required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
@@ -122,10 +141,14 @@ SetLoading(false)
             </form>
             
             <div className="mt-6 text-center text-sm">
-              <span className="text-gray-600">Already have an account?</span>
+              {LoginType == 'Sign Up' ?<><span className="text-gray-600">Already have an account?</span>
               <a href="#" onClick={SetClick} className="ml-1 text-blue-600 hover:text-blue-800 font-medium">
-                {LoginType}
-              </a>
+                Sign In
+              </a> </>:<><span className="text-gray-600">Dont have an account?</span>
+              <a href="#" onClick={SetClick} className="ml-1 text-blue-600 hover:text-blue-800 font-medium">
+               Sign Up
+              </a></>}
+              
             </div>
           </div>
           

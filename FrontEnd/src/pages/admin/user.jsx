@@ -1,20 +1,21 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faUserPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Navbar from '../../components/Navbar/navbar';
-import { AppContext } from '../../context';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import { changeStateAdmin } from '../../redux/Slices/iconReducer';
+import { VerifyUser } from '../../redux/Slices/AuthSlice';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '' ,Role:''});
+  const [formData, setFormData] = useState({ name: '', email: '' ,Role:'User'});
   const [searchValue,setsearch] = useState('')
-  const { setAdmin } = useContext(AppContext);
   const userc = useSelector((state) => state.auth.user);
   const [submitType,setSubmitType] = useState('Edit-User')
-
+ const dispatch = useDispatch()
 
   function GetUsers(){
     fetch('http://localhost:3000/admin/getUser', { method: 'GET' })
@@ -25,11 +26,12 @@ export default function UserManagement() {
   }
 
   function AddUser(){
+    dispatch((VerifyUser()))
     setSubmitType('Add-User')
     setFormData({
       name: '',
       email: '',
-      Role:'',
+      Role:'User',
       password:''
     });
     setModalOpen(true);
@@ -56,11 +58,15 @@ export default function UserManagement() {
   }, [searchValue]);
 
   useEffect(() => {
-    setAdmin(false);
     GetUsers()
+    dispatch(changeStateAdmin())
   }, []);
 
-  const handleDelete = (id) => {
+  const handleDelete = (id,isAdmin) => {
+    dispatch((VerifyUser()))
+    if(isAdmin === true){
+      return toast.info("Cant Delete Admin")
+    }
     const confirmDelete = window.confirm('Are you sure you want to delete this user?');
     if (!confirmDelete) return;    
     fetch(`http://localhost:3000/admin/users/deleteUser/${id}`,{method:'POST'})
@@ -70,12 +76,13 @@ export default function UserManagement() {
       if(data.success){
         GetUsers()
       }else{
-        alert(data.message)
+        toast.error(data.message)
       }
     })
   };
 
   const openEditModal = (user) => {
+    dispatch((VerifyUser()))
     setSubmitType('Edit-User')
     console.log(userc);
     setFormData({
@@ -99,6 +106,13 @@ export default function UserManagement() {
   };
 
   const handleSave = () => {
+    if(!formData.name){
+      return toast.error("Name Feild Required")
+    }
+     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!formData.email || !emailRegex.test(formData.email)) {
+          return toast.error('Please enter a valid email');
+        }
     if(submitType === 'Edit-User'){
       fetch('http://localhost:3000/admin/users/Edit-users',
         {method:'POST',
@@ -107,16 +121,26 @@ export default function UserManagement() {
           return response.json()
         }).then((data)=>{
           if(data.success){
-            alert(data.message)
+            toast.success(data.message)
             setModalOpen(false);
             GetUsers()
           }else{
-            alert(data.message)
+            toast.error(data.message)
           }
         }).catch((err)=>{
           console.log(err);      
         })
     }else{
+      if(!formData.name){
+        return toast.error("Name Feild Required")
+      }
+       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!formData.email || !emailRegex.test(formData.email)) {
+            return toast.error('Please enter a valid email');
+          }
+          if(!formData.password){
+            return toast.error('Please enter a password');
+          }
       fetch('http://localhost:3000/admin/users/Add-users',
         {method:'POST',
         headers:{'content-type':'application/json'},
@@ -124,11 +148,11 @@ export default function UserManagement() {
           return response.json()
         }).then((data)=>{
           if(data.success){
-            alert(data.message)
+            toast.success(data.message)
             setModalOpen(false);
             GetUsers()
           }else{
-            alert(data.message)
+            toast.error(data.message)
           }
         }).catch((err)=>{
           console.log(err);      
@@ -182,7 +206,7 @@ export default function UserManagement() {
                     </button>
                     <button
                       className='text-red-500 hover:text-red-700'
-                      onClick={() => handleDelete(user._id)}
+                      onClick={() => handleDelete(user._id,user.isAdmin)}
                     >
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
