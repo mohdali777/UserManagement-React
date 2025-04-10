@@ -1,8 +1,7 @@
 import React from 'react'
 // import loading from '../../assets/loading.gif'
 // import loading2 from '../../assets/loading2.gif'
-import loading3 from '../../assets/loading3.gif'
-import loading4 from '../../assets/loading4.gif'
+// import loading3 from '../../assets/loading3.gif'
 import loading5 from '../../assets/loading5.gif'
 
 

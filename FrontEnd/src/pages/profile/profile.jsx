@@ -6,6 +6,7 @@ import { AppContext } from '../../context';
 import Loading from '../../components/Loading/loading';
 import { useDispatch } from 'react-redux';
 import { logout } from '../../redux/Slices/AuthSlice';
+import { useSelector } from 'react-redux';
 
 export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
@@ -14,7 +15,7 @@ export default function Profile() {
   const [bio, setBio] = useState('Add Bio');
   const [profileImage, setProfileImage] = useState('');
   const {LoadingState,SetLoading} = useContext(AppContext)
-
+  const [newImageFile, setNewImageFile] = useState(null);
 
   const dispatch = useDispatch()
 
@@ -26,24 +27,11 @@ export default function Profile() {
     alert('Invalid file type. Please upload a JPG, JPEG, PNG, or WEBP image.');
     return;
   }
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', 'User-Profiles');
 
-  try {
-    const res = await fetch(`https://api.cloudinary.com/v1_1/dy5xp5ai5/image/upload`, {
-      method: 'POST',
-      body: formData,
-    });
 
-    const data = await res.json();
-    console.log('Image URL:', data.secure_url);
-    setProfileImage(data.secure_url);
-
-  } catch (err) {
-    console.error('Upload Error:', err);
-    alert('Image upload failed');
-  }
+  setNewImageFile(file); 
+  const previewUrl = URL.createObjectURL(file);
+  setProfileImage(previewUrl); 
   };
 
   useEffect(()=>{
@@ -61,43 +49,78 @@ export default function Profile() {
        setProfileImage(data.user.Image)
        }else{
         alert(data.message)
+        dispatch(logout())
        }
      })
   },[])
 
-  function ButtonClick() {
+  async function ButtonClick() {
+    SetLoading(true);
+    let uploadedImageUrl = profileImage; 
+    if (newImageFile) {
+      const formData = new FormData();
+      formData.append('file', newImageFile);
+      formData.append('upload_preset', 'User-Profiles');
+      try {
+        const res = await fetch(`https://api.cloudinary.com/v1_1/dy5xp5ai5/image/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+  
+        const data = await res.json();
+        if (data.secure_url) {
+          uploadedImageUrl = data.secure_url;
+          setProfileImage(data.secure_url);
+          setNewImageFile(null)
+        } else {
+          alert('Image upload failed.');
+          SetLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.error('Upload Error:', err);
+        alert('Image upload failed');
+        SetLoading(false);
+        return;
+      }
+    }
+  
     const payload = {
       name,
       email,
       bio,
-      profileImage
+      profileImage: uploadedImageUrl
     };
+  
     const token = localStorage.getItem('token');
     fetch('http://localhost:3000/profile/Edit-data', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `${token}`, 
+        'Authorization': `${token}`,
       },
       body: JSON.stringify(payload)
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          SetLoading(true)
-          setTimeout(()=>{
-           SetLoading(false)
-            setIsEditing(false)
-          },2000)
+          setTimeout(() => {
+            SetLoading(false);
+            setIsEditing(false);
+            setNewImageFile(null); 
+          }, 2000);
         } else {
           alert(`Error: ${data.message}`);
+          SetLoading(false);
         }
       })
       .catch((err) => {
         console.error('Error:', err);
         alert('Something went wrong!');
+        SetLoading(false);
       });
   }
+  
   
 
 

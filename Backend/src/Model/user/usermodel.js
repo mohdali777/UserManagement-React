@@ -18,6 +18,10 @@ const UserSchema = new mongoose.Schema({
     enum:['blocked','active','inactive'],
     default:'active'
  },
+ isAdmin:{
+type:Boolean,
+default:false
+ },
  Image:{
     type:String,
     required:false,

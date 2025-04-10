@@ -27,7 +27,11 @@ try {
     success:true,
     message:"Login Success",
     Token,
-    user:{userId:IsEmail._id,email:IsEmail.email}
+    user: {
+      _id: IsEmail._id,
+      name: IsEmail.name,
+      email: IsEmail.email,
+    },  
   })
 
 } catch (error) {
@@ -67,7 +71,7 @@ try {
       expiresIn: '1d',
     });
      
-    return res.status(201).json({success:true,message:"User Created Successfully",Token,user:{userId:newUser._id,email:newUser.email}})
+    return res.status(201).json({success:true,message:"User Created Successfully",Token,user:newUser})
 } catch (error) {
     console.error("Signup error:", error);
     return res.status(500).json({
@@ -103,6 +107,9 @@ const editprofile = async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
+    user.Image = profileImage
+    await user.save();
+
     const isNameUsed = await User.findOne({ name });
     if (isNameUsed && isNameUsed._id.toString() !== user._id.toString()) {
       return res.status(400).json({ success: false, message: 'Username already taken' });
@@ -114,7 +121,6 @@ const editprofile = async (req, res) => {
     user.name = name;
     user.email = email;
     user.bio = bio;
-    user.Image = profileImage
     await user.save();
 
     return res.status(200).json({
