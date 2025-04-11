@@ -6,7 +6,8 @@ const getUserData = async (req,res) => {
  const Users = await User.find({})
  return res.status(200).json({success:true,message:'Data Fetched',Users})          
     } catch (error) {
-        
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Server Error' });
     }
 }
 
@@ -40,7 +41,8 @@ const EditUsers = async (req,res) => {
         await user.save()
         return res.status(401).json({success:true,message:"Updated SuccessFully"})
     } catch (error) {
-        
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Server Error' });
     }
 }
 
@@ -53,7 +55,8 @@ const DeleteUser = async (req,res) => {
         await User.findByIdAndDelete(id)
         return res.status(200).json({success:true,message:"Deleted Successfully"})
     } catch (error) {
-        
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Server Error' });
     }
 }
 
@@ -94,7 +97,8 @@ const serachQuery = async (req, res) => {
          return res.status(201).json({success:true,message:"User Created Successfully",user:newuser})
 
     } catch (error) {
-        
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Server Error' });
     }
   }
 

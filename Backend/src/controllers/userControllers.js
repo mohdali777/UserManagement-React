@@ -98,6 +98,8 @@ const getData = async (req,res) => {
 
 const editprofile = async (req, res) => {
   try {
+    console.log(req.body);
+    
     const { name, email, bio,profileImage,uploadimageId,imageId} = req.body;
     const token = req.headers.authorization;
     if (!token) {

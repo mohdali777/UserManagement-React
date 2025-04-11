@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignOutAlt, faUser, faCog, faEdit, faCamera } from '@fortawesome/free-solid-svg-icons';
 import Loading from '../../components/Loading/loading';
 import { useDispatch } from 'react-redux';
-import { logout } from '../../redux/Slices/AuthSlice';
+import { logout, VerifyUser } from '../../redux/Slices/AuthSlice';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -61,8 +61,9 @@ export default function Profile() {
   };
 
   useEffect(()=>{
+    dispatch(changeStateprofile())   
+    dispatch(VerifyUser())
    GetUserdata()
-   dispatch(changeStateprofile())   
   },[])
 
   async function ButtonClick() {
