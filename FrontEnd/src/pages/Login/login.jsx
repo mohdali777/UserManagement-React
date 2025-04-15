@@ -114,7 +114,6 @@ const Login = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                   placeholder="••••••••"
                 />
-                <p className="mt-1 text-xs text-gray-500">Password must be at least 8 characters long</p>
               </div>
               
               {LoginType == "Sign Up" ? <div>
