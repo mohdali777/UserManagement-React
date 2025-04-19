@@ -17,6 +17,7 @@ export default function UserManagement() {
   const [submitType,setSubmitType] = useState('Edit-User')
  const dispatch = useDispatch()
 
+
   function GetUsers(){
     fetch('http://localhost:3000/admin/getUser', { method: 'GET' })
     .then((res) => res.json())

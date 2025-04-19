@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Loading from '../../components/Loading/loading';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { SignupUser,loginUser } from '../../redux/Slices/AuthSlice';
+import { SignupUser,loginUser, nameValue } from '../../redux/Slices/AuthSlice';
 import { toast } from 'react-toastify';
 const Login = () => {
   const [fullName, setFullName] = useState('');
@@ -66,7 +66,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center relative">
-
+       {name}
         {loading &&<div className='absolute'>
         <Loading/>
         </div> }
@@ -88,6 +88,7 @@ const Login = () => {
                 />
               </div>:<></>}
               
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
