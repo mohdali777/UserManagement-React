@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import Loading from '../../components/Loading/loading';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { SignupUser,loginUser, nameValue } from '../../redux/Slices/AuthSlice';
+import { SignupUser,loginUser} from '../../redux/Slices/AuthSlice';
 import { toast } from 'react-toastify';
 const Login = () => {
   const [fullName, setFullName] = useState('');
@@ -79,6 +79,7 @@ const Login = () => {
                   Full Name
                 </label>
                 <input
+
                   id="fullName"
                   type="text"
                   value={fullName}
